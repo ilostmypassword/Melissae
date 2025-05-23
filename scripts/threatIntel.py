@@ -9,6 +9,8 @@ def calculate_protocol_score(ip_data):
     ssh_success = False
     ftp_failed = False
     ftp_success = False
+    modbus_read_count = 0
+    modbus_write_count = 0
 
     for entry in ip_data:
         protocol = entry.get('protocol', '').upper()
@@ -26,21 +28,26 @@ def calculate_protocol_score(ip_data):
                 ftp_failed = True
             elif 'successful' in action:
                 ftp_success = True
+        elif protocol == 'MODBUS':
+            if 'write' in action:
+                modbus_write_count += 1
+            else:
+                modbus_read_count += 1
 
-    # Nefarious
-    if ssh_success and ftp_success:
+    # Nefarious - Multiple protocol compromise or industrial system tampering
+    if (ssh_success and ftp_success) or (modbus_write_count > 5 and (ssh_success or ftp_success)):
         return 5
 
-    # Malicious
-    elif ssh_success or ftp_success:
+    # Malicious - Successful breach or industrial system writes
+    elif ssh_success or ftp_success or modbus_write_count > 0:
         return 4
 
-    # Suspicious
-    elif http_count > 50 or ssh_failed or ftp_failed:
+    # Suspicious - Failed attempts or excessive activity
+    elif http_count > 50 or ssh_failed or ftp_failed or modbus_read_count > 10:
         return 2
 
-    # Benign
-    elif http_count > 0:
+    # Benign - Normal activity
+    elif http_count > 0 or modbus_read_count > 0:
         return 1
 
     return 0

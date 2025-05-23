@@ -58,3 +58,17 @@ services:
       - "22:22"
     volumes:
       - ./modules/ssh/logs:/host-logs/ssh
+
+  melissae_modbus:
+    build:
+      context: .
+      dockerfile: modules/modbus/Dockerfile
+    container_name: melissae_modbus
+    ports:
+      - "502:502"
+    environment:
+      MODBUS_PROFILE: "schneider_pm5300"
+      MODBUS_PORT: "502"
+    volumes:
+      - ./modules/modbus/logs:/logs
+      - ./modules/modbus/conf:/conf:ro

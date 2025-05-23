@@ -21,7 +21,8 @@ The project includes a fully functional dashboard offering real-time visibility 
 3. [Modules](#modules)
     - [Web](#web) 
     - [SSH](#ssh) 
-    - [FTP](#ftp) 
+    - [FTP](#ftp)
+    - [Modbus](#modbus) 
 4. [Search Engine](#search-engine)
 5. [Threat Intelligence](#threat-intelligence)
 6. [Getting Started](#getting-started)
@@ -129,7 +130,7 @@ The various module logs are processed by logParser.py, which parses and formats 
 
 ## Modules
 The choice of modular, containerized deployment means that contributors can easily develop new modules. 
-There are currently 3 native modules:
+There are currently 4 native modules:
 
 #### Web
 
@@ -216,6 +217,33 @@ There are currently 3 native modules:
   - The shared repository with the ftp container is `modules/ftp/server`
   - You need to modify your module credentials here : `docker-compose.yml` (Default `ftpuser:ftppass`)
 
+---
+
+#### Modbus
+
+| Type | Image | Container name|
+| :-------------------: | :----------: | :----------: |
+| Modbus TCP Server     | python:3.9-slim with pymodbus | melissae_modbus |
+
+- Logs format
+
+```json
+[
+  {
+    "protocol": "modbus",
+    "date": "2025-04-16",
+    "hour": "11:49:15",
+    "ip": "192.168.X.X",
+    "action": "Read Holding Registers at address 3000 (count: 10)"
+  }
+]
+```
+
+- Usage
+  - The module simulates industrial control systems using Modbus TCP protocol
+  - Select device profile via environment variable in `docker-compose.yml` (Default: `schneider_pm5300`)
+  - Available profiles: `schneider_pm5300`, `siemens_s7_1200`, `abb_acs580`, `allen_bradley_micrologix`
+  - Detailed configuration and anti-fingerprinting features are documented in `modules/modbus/README.md`
 
 ---
 
@@ -227,10 +255,10 @@ See [contributing](#contributing) if you're interested in developing the threat 
 
 There are 5 different verdicts:
 
-- **Benign**: Threat requested the web module < 50 times  
-- **Suspicious**: Threat requested the web module > 50 times OR (attempted to connect using SSH OR FTP) 
-- **Malicious**: Threat successfully connected via SSH OR FTP  
-- **Nefarious**: Threat connected via both SSH AND FTP  
+- **Benign**: Threat requested the web module < 50 times OR performed normal Modbus reads
+- **Suspicious**: Threat requested the web module > 50 times OR attempted to connect using SSH/FTP OR performed Modbus scanning (>100 reads) OR used suspicious Modbus functions
+- **Malicious**: Threat successfully connected via SSH/FTP OR performed Modbus write operations
+- **Nefarious**: Threat connected via both SSH AND FTP OR performed Modbus writes combined with SSH/FTP access  
 
 ![threat-intel](https://github.com/user-attachments/assets/b6e9fc77-18b5-4528-a08a-a8e5cbeec82c)
 

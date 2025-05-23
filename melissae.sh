@@ -39,6 +39,7 @@ show_help() {
     echo "  web        Web stack + Dashboard"
     echo "  ftp        FTP + Dashboard"
     echo "  ssh        SSH + Dashboard"
+    echo "  modbus     Modbus + Dashboard"
     echo ""
     echo "Example :"
     echo "             ./melissae.sh start all"
@@ -69,6 +70,7 @@ install() {
     chmod -R 777 modules/web/logs
     chmod -R 777 modules/ssh/logs
     chmod -R 777 modules/ftp/logs
+    chmod -R 777 modules/modbus/logs
 
     WORKING_DIRECTORY=$(pwd)
 
@@ -128,7 +130,7 @@ start() {
     for module in "${modules[@]}"; do
         case "$module" in
             all)
-                services+=("melissae_apache1" "melissae_apache2" "melissae_proxy" "melissae_dashboard" "melissae_ftp" "melissae_ssh")
+                services+=("melissae_apache1" "melissae_apache2" "melissae_proxy" "melissae_dashboard" "melissae_ftp" "melissae_ssh" "melissae_modbus")
                 ;;
             web)
                 services+=("melissae_apache1" "melissae_apache2" "melissae_proxy" "melissae_dashboard")
@@ -138,6 +140,9 @@ start() {
                 ;;
             ssh)
                 services+=("melissae_ssh" "melissae_dashboard")
+                ;;
+            modbus)
+                services+=("melissae_modbus" "melissae_dashboard")
                 ;;
             *)
                 echo "Unknown module : $module"

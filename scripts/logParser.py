@@ -34,6 +34,10 @@ PATTERNS = {
     'http': {
         'source': 'modules/web/logs/access.log',
         'pattern': re.compile(r'^(\S+) - - \[(.*?)\] "(GET|POST|PUT|DELETE|HEAD|OPTIONS|PROPFIND|EWYM) (\S+) HTTP/\d\.\d" (\d+) \d+ ".*?" "(.*?)"$')
+    },
+    'modbus': {
+        'source': 'modules/modbus/logs/modbus_requests.json',
+        'type': 'json'
     }
 }
 
@@ -159,6 +163,46 @@ def process_http() -> List[Dict]:
                 logs.append(entry)
     return logs
 
+# Modbus Module parsing & processing
+def process_modbus() -> List[Dict]:
+    logs = []
+    source = os.path.join(WORKING_DIR, PATTERNS['modbus']['source'])
+    if not os.path.exists(source):
+        return logs
+    
+    with open(source, 'r', encoding='utf-8') as f:
+        for line in f:
+            try:
+                data = json.loads(line.strip())
+                dt = datetime.fromisoformat(data['timestamp'])
+                
+                # Format action based on function code
+                fc_names = {
+                    1: "Read Coils",
+                    2: "Read Discrete Inputs",
+                    3: "Read Holding Registers",
+                    4: "Read Input Registers",
+                    5: "Write Single Coil",
+                    6: "Write Single Register",
+                    15: "Write Multiple Coils",
+                    16: "Write Multiple Registers",
+                    17: "Report Slave ID",
+                    43: "Read Device Identification"
+                }
+                
+                fc_name = fc_names.get(data['function_code'], f"Unknown Function ({data['function_code']})")
+                action = f"{fc_name} at address {data['address']}"
+                
+                if data.get('count'):
+                    action += f" (count: {data['count']})"
+                
+                entry = create_entry('modbus', dt, data['client_ip'], action)
+                logs.append(entry)
+            except (json.JSONDecodeError, KeyError) as e:
+                continue
+    
+    return logs
+
 # Merging logs
 def merge_and_save(all_logs: List[Dict]) -> None:
     seen = set()
@@ -180,4 +224,5 @@ if __name__ == "__main__":
     all_logs.extend(process_ssh_commands())
     all_logs.extend(process_ftp())
     all_logs.extend(process_http())
+    all_logs.extend(process_modbus())
     merge_and_save(all_logs)
