@@ -243,7 +243,7 @@ There are currently 4 native modules:
   - The module simulates industrial control systems using Modbus TCP protocol
   - Select device profile via environment variable in `docker-compose.yml` (Default: `schneider_pm5300`)
   - Available profiles: `schneider_pm5300`, `siemens_s7_1200`, `abb_acs580`, `allen_bradley_micrologix`
-  - Detailed configuration and anti-fingerprinting features are documented in `modules/modbus/README.md`
+  - add your own profiles and behaviours and tailor them to the ones running in your infrastructure for a more seamless integrations by editing the "modbus_server.py" file 
 
 ---
 
