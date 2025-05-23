@@ -41,6 +41,7 @@ function formatProtocol(protocol) {
         'ssh': 'protocol-ssh',
         'ftp': 'protocol-ftp',
         'http': 'protocol-http',
+        'modbus': 'protocol-modbus'
     };
     return `<span class="protocol-tag ${colors[protocol] || ''}">${protocol.toUpperCase()}</span>`;
 }

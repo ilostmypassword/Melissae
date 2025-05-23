@@ -351,6 +351,11 @@ h1 {
     color: #c758d1;
 }
 
+.protocol-modbus {
+    background-color: #fff4e6;
+    color: #ff8c42;
+}
+
 /* ============================= */
 /*      ANIMATIONS & EFFECTS     */
 /* ============================= */
