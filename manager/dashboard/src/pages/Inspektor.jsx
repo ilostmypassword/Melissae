@@ -189,6 +189,9 @@ function Message({ msg, onExport }) {
             </button>
           </div>
         )}
+        {Array.isArray(msg.trace) && msg.trace.length > 0 && (
+          <TracePanel trace={msg.trace} />
+        )}
         <div
           className={`max-w-none ${
             msg.kind === 'report'
@@ -202,6 +205,110 @@ function Message({ msg, onExport }) {
         </div>
       </div>
     </div>
+  )
+}
+
+function TracePanel({ trace }) {
+  const [open, setOpen] = useState(false)
+  const [expanded, setExpanded] = useState(() => new Set())
+
+  const toggleStep = i => {
+    setExpanded(prev => {
+      const next = new Set(prev)
+      if (next.has(i)) next.delete(i)
+      else next.add(i)
+      return next
+    })
+  }
+
+  return (
+    <div className="mb-2 border border-border/50 rounded-lg bg-surface-tertiary/30 overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted hover:text-text-primary transition-colors"
+      >
+        <span className="flex items-center gap-2">
+          <BrainIcon />
+          Thinking · {trace.length} step{trace.length === 1 ? '' : 's'}
+        </span>
+        <ChevronIcon open={open} />
+      </button>
+      {open && (
+        <div className="border-t border-border/50 px-3 py-2 space-y-2">
+          {trace.map((step, i) => {
+            const isOpen = expanded.has(i)
+            return (
+              <div key={i} className="rounded-md bg-surface/60 border border-border/40">
+                <button
+                  onClick={() => toggleStep(i)}
+                  className="w-full flex items-center justify-between gap-2 px-3 py-1.5 text-left hover:bg-surface-hover/40 transition-colors"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[10px] font-mono text-text-muted shrink-0">#{step.step}</span>
+                    <span className="text-[11px] font-mono text-accent truncate">
+                      {step.tool || '(no tool)'}
+                    </span>
+                  </div>
+                  <ChevronIcon open={isOpen} small />
+                </button>
+                {isOpen && (
+                  <div className="px-3 pb-2 pt-1 space-y-2 border-t border-border/30">
+                    {step.thought && (
+                      <TraceBlock label="Reasoning" body={step.thought} />
+                    )}
+                    {step.input && (
+                      <TraceBlock label="Input" body={step.input} mono />
+                    )}
+                    {step.output && (
+                      <TraceBlock label="Output" body={step.output} mono />
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function TraceBlock({ label, body, mono }) {
+  return (
+    <div>
+      <div className="text-[9px] font-semibold uppercase tracking-wider text-text-muted mb-0.5">
+        {label}
+      </div>
+      <pre
+        className={`text-[11px] leading-snug whitespace-pre-wrap break-words text-text-secondary bg-surface-tertiary/60 rounded px-2 py-1.5 max-h-60 overflow-auto ${
+          mono ? 'font-mono' : ''
+        }`}
+      >
+        {body}
+      </pre>
+    </div>
+  )
+}
+
+function BrainIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 5a3 3 0 0 0-3 3v.5a3 3 0 0 0-2 5.2A3 3 0 0 0 9 19a3 3 0 0 0 3-3V5Z" />
+      <path d="M12 5a3 3 0 0 1 3 3v.5a3 3 0 0 1 2 5.2A3 3 0 0 1 15 19a3 3 0 0 1-3-3" />
+    </svg>
+  )
+}
+
+function ChevronIcon({ open, small }) {
+  const s = small ? 11 : 13
+  return (
+    <svg
+      width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+      className={`transition-transform ${open ? 'rotate-180' : ''}`}
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
   )
 }
 
