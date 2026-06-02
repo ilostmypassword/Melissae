@@ -35,12 +35,12 @@
 
 Most honeypots give you a wall of logs. **Melissae gives you a fleet of decoys, a verdict on every attacker, and an AI analyst that explains what just happened.**
 
-- 🕸️ **Manager / agent fleet** : Deploy lightweight agents anywhere, manage them from a single hive.
-- 🔐 **Zero-trust by default** : Every agent talks to the manager over mTLS (ECDSA P-384), enrolled with one-time tokens.
-- 🎯 **Rule-based scoring** : YAML detection rules rate each IP from 0 to 100 (benign · suspicious · malicious).
-- 🐝 **Inspektor AI** : Built-in threat analyst on AWS Bedrock + LangChain; chat with your hive, export PDF briefings.
-- 📡 **Real-time dashboard** : Live topology, GeoIP map, kill-chains, log search with logical operators, STIX 2.1 export.
-- 🧩 **7 honeypot modules** : Web (Nginx/Apache), SSH, FTP, Telnet, Modbus/ICS, MQTT, plus CVE-specific decoys.
+- **Manager / agent fleet** : Deploy lightweight agents anywhere, manage them from a single hive.
+- **Zero-trust by default** : Every agent talks to the manager over mTLS (ECDSA P-384), enrolled with one-time tokens.
+- **Rule-based scoring** : YAML detection rules rate each IP from 0 to 100 (benign · suspicious · malicious).
+- **Inspektor AI** : Built-in threat analyst on AWS Bedrock + LangChain; chat with your hive, export PDF briefings.
+- **Real-time dashboard** : Live topology, GeoIP map, kill-chains, log search with logical operators, STIX 2.1 export.
+- **7 honeypot modules** : Web (Nginx/Apache), SSH, FTP, Telnet, Modbus/ICS, MQTT, plus CVE-specific decoys.
 
 <br>
 
