@@ -48,7 +48,7 @@ Most honeypots give you a wall of logs. **Melissae gives you a fleet of decoys, 
 <summary><strong>📊 Dashboard Overview</strong></summary>
 <br>
 <p align="center">
-  <img width="1919" alt="overview-dashboard" src="https://github.com/user-attachments/assets/d86012db-b845-437f-bda4-e47e9baa7d8d" />
+  <img width="1919" height="935" alt="dashboard-overview" src="https://github.com/user-attachments/assets/a7152b82-eb67-4de3-ad9d-6a20bfe5d414" />
 </p>
 </details>
 
@@ -56,7 +56,7 @@ Most honeypots give you a wall of logs. **Melissae gives you a fleet of decoys, 
 <summary><strong>🚨 Rule-Based Alerting</strong></summary>
 <br>
 <p align="center">
-  <img width="1919" alt="detection-alerts" src="https://github.com/user-attachments/assets/d6015f73-dd34-4e36-93d3-762c3b464fc6" />
+  <img width="1919" height="936" alt="rule-based-alerting" src="https://github.com/user-attachments/assets/46e526f1-f263-46d7-b90f-1077ec8fb2b3" />
 </p>
 </details>
 
@@ -64,13 +64,16 @@ Most honeypots give you a wall of logs. **Melissae gives you a fleet of decoys, 
 <summary><strong>📈 Statistics & Charts</strong></summary>
 <br>
 <p align="center">
-  <img width="1919" alt="statistics-traffic-1" src="https://github.com/user-attachments/assets/ce5fd426-5be3-4275-9003-d11ad493b620" />
+  <img width="1919" height="934" alt="stats-charts" src="https://github.com/user-attachments/assets/9ad682fb-bd93-4124-974c-a7391d672940" />
 </p>
 <p align="center">
-  <img width="1919" alt="statistics-traffic-2" src="https://github.com/user-attachments/assets/f298eea0-f853-4467-891d-64938b5a9f29" />
+  <img width="1919" height="934" alt="stats-charts-2" src="https://github.com/user-attachments/assets/7db1a9be-3ef9-4cc8-9ec5-0237a215e591" />
 </p>
 <p align="center">
-  <img width="1919" alt="statistics-threats-1" src="https://github.com/user-attachments/assets/8da4b56f-ff6e-4714-a3a4-36ca61a053ba" />
+  <img width="1919" height="935" alt="stats-charts3" src="https://github.com/user-attachments/assets/d907675f-5516-4e1d-a59d-53e94d78f08a" />
+</p>
+<p align="center">
+  <img width="1919" height="937" alt="stats-charts4" src="https://github.com/user-attachments/assets/1aa5f1a2-1a2f-4d6d-a6ba-d8d449bf20ce" />
 </p>
 </details>
 
@@ -78,7 +81,7 @@ Most honeypots give you a wall of logs. **Melissae gives you a fleet of decoys, 
 <summary><strong>🛰️ Agents Management</strong></summary>
 <br>
 <p align="center">
-  <img width="1919" alt="overview-agents" src="https://github.com/user-attachments/assets/c2a9105d-a9fb-4357-8df6-0a39fb3afaba" />
+  <img width="1919" height="935" alt="agent-management" src="https://github.com/user-attachments/assets/8fce3966-21c0-4558-9f60-c4ce655bff3e" />
 </p>
 </details>
 
@@ -86,10 +89,10 @@ Most honeypots give you a wall of logs. **Melissae gives you a fleet of decoys, 
 <summary><strong>🌍 GeoIP Attack Map</strong></summary>
 <br>
 <p align="center">
-  <img width="1919" alt="explore-geo-map-1" src="https://github.com/user-attachments/assets/6741957f-98ba-4252-b371-ee8d1fd74d35" />
+  <img width="1919" height="934" alt="geoip" src="https://github.com/user-attachments/assets/31a25d91-1f4b-4fed-9d67-570281fdb738" />
 </p>
 <p align="center">
-  <img width="1919" alt="explore-geo-map-2" src="https://github.com/user-attachments/assets/815f9905-33ab-47ca-be41-23f093749dc6" />
+  <img width="1919" height="935" alt="geoip2" src="https://github.com/user-attachments/assets/044bc2bd-47bf-4b87-9ef3-daf0e61c72cc" />
 </p>
 </details>
 
@@ -97,7 +100,7 @@ Most honeypots give you a wall of logs. **Melissae gives you a fleet of decoys, 
 <summary><strong>🔎 Search Engine</strong></summary>
 <br>
 <p align="center">
-  <img width="1919" alt="explore-search" src="https://github.com/user-attachments/assets/88de9da8-9e79-45a6-bb71-fc0cf6265433" />
+  <img width="1919" height="935" alt="search" src="https://github.com/user-attachments/assets/5dc76dee-c527-43f8-a44d-981d1ca4950a" />
 </p>
 </details>
 
@@ -105,17 +108,19 @@ Most honeypots give you a wall of logs. **Melissae gives you a fleet of decoys, 
 <summary><strong>🧠 Threat Intelligence</strong></summary>
 <br>
 <p align="center">
-  <img width="1919" alt="intelligence-threat-intelligence-1" src="https://github.com/user-attachments/assets/9d276fbd-1a70-49e6-b860-eb3ee1585fbb" />
+  <img width="1919" height="933" alt="threat-intel" src="https://github.com/user-attachments/assets/103fefff-673d-4061-8882-707df3b96e2d" />
 </p>
 <p align="center">
-  <img width="1919" alt="intelligence-threat-intelligence-2" src="https://github.com/user-attachments/assets/94e9cd5a-e14f-4f34-88c1-a0d81d0201f4" />
+  <img width="1918" height="934" alt="threat-intel2" src="https://github.com/user-attachments/assets/ba65750b-ffc1-47f7-81f0-4b3f2c4195c2" />
 </p>
 </details>
 
 <details>
 <summary><strong>🐝 Inspektor AI</strong></summary>
 <br>
-
+<p align="center">
+  <img width="1919" height="935" alt="inspektor" src="https://github.com/user-attachments/assets/597ee1de-ac0f-4d4c-a0da-4af10ee245a9" />
+</p>
 </details>
 
 ---
