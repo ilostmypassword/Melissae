@@ -8,6 +8,9 @@ from pymongo.errors import PyMongoError
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 DB_NAME = os.getenv("MONGO_DB", "melissae")
 
+LOG_RETENTION_DAYS = int(os.getenv("MELISSAE_LOG_RETENTION_DAYS", "30"))
+BENIGN_THREAT_IDLE_HOURS = int(os.getenv("MELISSAE_BENIGN_IDLE_HOURS", "1"))
+
 # Parse a timestamp from various log formats
 def parse_timestamp(log: dict) -> Optional[datetime]:
     if not log:
@@ -49,9 +52,8 @@ def get_last_seen(db, ip: str) -> Optional[datetime]:
         print(f"[purge_iocs] Error fetching logs for {ip}: {e}")
         return None
 
-# Remove benign IPs and their logs if unseen for 1 hour
-def purge_benign_older_than_1h():
-    cutoff = datetime.now(timezone.utc) - timedelta(hours=1)
+def purge_benign_threats():
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=BENIGN_THREAT_IDLE_HOURS)
     try:
         client = MongoClient(MONGO_URI)
         db = client[DB_NAME]
@@ -60,6 +62,7 @@ def purge_benign_older_than_1h():
         if not benign_iocs:
             return
 
+        purged = 0
         for doc in benign_iocs:
             ip = doc.get("ip")
             if not ip:
@@ -69,13 +72,29 @@ def purge_benign_older_than_1h():
             if last_seen is None or last_seen < cutoff:
                 try:
                     db["threats"].delete_one({"ip": ip})
-                    db["logs"].delete_many({"ip": ip})
-                    print(f"[purge_iocs] Purged IP {ip} (last seen: {last_seen})")
+                    purged += 1
                 except PyMongoError as e:
-                    print(f"[purge_iocs] Error purging {ip}: {e}")
+                    print(f"[purge_iocs] Error purging threat {ip}: {e}")
+        if purged:
+            print(f"[purge_iocs] Recycled {purged} idle benign threat doc(s)")
     except PyMongoError as e:
         print(f"[purge_iocs] Mongo error: {e}")
 
+def purge_old_logs():
+    cutoff = datetime.now(timezone.utc) - timedelta(days=LOG_RETENTION_DAYS)
+    cutoff_iso = cutoff.isoformat(timespec="microseconds").replace("+00:00", "Z")
+    try:
+        client = MongoClient(MONGO_URI)
+        db = client[DB_NAME]
+        result = db["logs"].delete_many({"timestamp": {"$lt": cutoff_iso}})
+        if result.deleted_count:
+            print(f"[purge_iocs] Deleted {result.deleted_count} log(s) older than "
+                  f"{LOG_RETENTION_DAYS}d (cutoff {cutoff_iso})")
+    except PyMongoError as e:
+        print(f"[purge_iocs] Log purge error: {e}")
+
+
 if __name__ == "__main__":
-    purge_benign_older_than_1h()
+    purge_benign_threats()
+    purge_old_logs()
 
