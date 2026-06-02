@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ipaddress
 import json
+import math
 import os
 import time
 import urllib.request
@@ -173,10 +174,54 @@ def _aggregate_alerts_by_ip(db) -> Dict[str, Dict]:
                 rule_entry["last_seen"] = _format_utc_iso(ts)
     return by_ip
 
+def _aggregate_passive_ips_from_logs(db, alerted_ips: set) -> Dict[str, Dict]:
+    by_ip: Dict[str, Dict] = {}
+    try:
+        pipeline = [
+            {"$match": {"ip": {"$nin": list(alerted_ips), "$ne": None, "$exists": True}}},
+            {"$group": {
+                "_id": "$ip",
+                "agents": {"$addToSet": "$agent_id"},
+                "first_seen": {"$min": "$timestamp"},
+                "last_seen": {"$max": "$timestamp"},
+                "count": {"$sum": 1},
+            }},
+        ]
+        cursor = db["logs"].aggregate(pipeline, allowDiskUse=True)
+    except PyMongoError as e:
+        print(f"[threatIntel] passive aggregation error: {e}")
+        return by_ip
+
+    for doc in cursor:
+        ip = doc.get("_id")
+        if not ip or not isinstance(ip, str):
+            continue
+        first_seen = _parse_iso(doc.get("first_seen"))
+        last_seen = _parse_iso(doc.get("last_seen"))
+        agents = {a for a in (doc.get("agents") or []) if a}
+        by_ip[ip] = {
+            "rules": {},
+            "agents": agents,
+            "tags": set(),
+            "mitre": set(),
+            "alert_count": 0,
+            "log_count": int(doc.get("count") or 0),
+            "first_seen": first_seen,
+            "last_seen": last_seen,
+            "passive": True,
+        }
+    return by_ip
+
+def _rule_contribution(score: int, count: int) -> float:
+    count = max(1, int(count))
+    return float(score) + 5.0 * math.log2(count)
+
 
 # Aggregate the alerts of an IP into a threat document with a 0-100 score
 def _compute_threat(ip: str, bucket: Dict) -> Dict:
-    score = min(100, sum(r["score"] * r["count"] for r in bucket["rules"].values()))
+    raw_score = sum(_rule_contribution(r["score"], r["count"])
+                    for r in bucket["rules"].values())
+    score = int(round(min(100.0, max(0.0, raw_score))))
     if score >= VERDICT_MALICIOUS:
         verdict = "malicious"
     elif score >= VERDICT_SUSPICIOUS:
@@ -205,7 +250,10 @@ def _compute_threat(ip: str, bucket: Dict) -> Dict:
         "tags": sorted(bucket["tags"]),
         "mitre": sorted(bucket["mitre"]),
         "agents": sorted(bucket["agents"]),
+        "passive": bool(bucket.get("passive")) and not bucket["rules"],
     }
+    if bucket.get("log_count"):
+        doc["log_count"] = bucket["log_count"]
     if bucket["first_seen"]:
         doc["first_seen"] = _format_utc_iso(bucket["first_seen"])
     if bucket["last_seen"]:
@@ -215,6 +263,10 @@ def _compute_threat(ip: str, bucket: Dict) -> Dict:
 
 def recompute_threats(db) -> int:
     by_ip = _aggregate_alerts_by_ip(db)
+
+    passive_by_ip = _aggregate_passive_ips_from_logs(db, set(by_ip.keys()))
+    by_ip.update(passive_by_ip)
+
     if not by_ip:
         try:
             db["threats"].delete_many({})
