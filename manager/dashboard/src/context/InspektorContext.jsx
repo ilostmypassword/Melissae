@@ -139,7 +139,10 @@ export function InspektorProvider({ children }) {
     try {
       const data = await sendInspektorChat(value, history)
       const reply = data.reply || '(no answer)'
-      setMessages(prev => [...prev, { id: nextId(), role: 'assistant', kind: 'chat', content: reply }])
+      const trace = Array.isArray(data.trace) ? data.trace : []
+      setMessages(prev => [...prev, {
+        id: nextId(), role: 'assistant', kind: 'chat', content: reply, trace,
+      }])
       notifyReply('Inspektor replied', previewOf(reply))
     } catch (e) {
       setError(e.message)

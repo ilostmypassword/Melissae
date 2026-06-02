@@ -123,7 +123,13 @@ def build_agent(cfg: Dict) -> AgentExecutor:
         MessagesPlaceholder(variable_name="agent_scratchpad"),
     ])
     agent = create_tool_calling_agent(llm, tools.TOOLS, prompt)
-    return AgentExecutor(agent=agent, tools=tools.TOOLS, max_iterations=15, verbose=False)
+    return AgentExecutor(
+        agent=agent,
+        tools=tools.TOOLS,
+        max_iterations=15,
+        verbose=False,
+        return_intermediate_steps=True,
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -163,6 +169,52 @@ def _extract_text(result) -> str:
     if isinstance(body, list):
         body = "".join(b.get("text", "") if isinstance(b, dict) else str(b) for b in body)
     return body
+
+
+_MAX_OBS_CHARS = 4000
+
+
+def _stringify(value) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    try:
+        import json as _json
+        return _json.dumps(value, default=str, ensure_ascii=False)
+    except Exception:
+        return str(value)
+
+
+def _truncate(text: str, limit: int = _MAX_OBS_CHARS) -> str:
+    if len(text) <= limit:
+        return text
+    return text[:limit] + f"\n\n… [truncated, {len(text) - limit} more chars]"
+
+
+# Convert (AgentAction, observation) tuples returned by LangChain into a
+# JSON-friendly list the dashboard can render as a "thinking" trace.
+def _trace_from_steps(result) -> List[Dict]:
+    if not isinstance(result, dict):
+        return []
+    steps = result.get("intermediate_steps") or []
+    trace: List[Dict] = []
+    for idx, item in enumerate(steps):
+        if not isinstance(item, tuple) or len(item) != 2:
+            continue
+        action, observation = item
+        thought = getattr(action, "log", "") or ""
+        # The LangChain `log` field often echoes the tool call; strip it
+        # so we only show the model's reasoning prose, when there is any.
+        thought = thought.strip()
+        trace.append({
+            "step": idx + 1,
+            "tool": getattr(action, "tool", "") or "",
+            "input": _truncate(_stringify(getattr(action, "tool_input", ""))),
+            "output": _truncate(_stringify(observation)),
+            "thought": _truncate(thought, 1500),
+        })
+    return trace
 
 
 # --------------------------------------------------------------------------- #
@@ -249,7 +301,8 @@ def http_chat():
         with _LOCK:
             result = _STATE["agent"].invoke({"input": message, "chat_history": history})
         reply = _extract_text(result).strip()
-        return jsonify({"reply": reply or "(no answer)"})
+        trace = _trace_from_steps(result)
+        return jsonify({"reply": reply or "(no answer)", "trace": trace})
     except Exception as e:  # noqa: BLE001
         log.error("Chat turn failed: %s", e)
         return jsonify({"error": "Inspektor could not process this request"}), 502
